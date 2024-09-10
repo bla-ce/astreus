@@ -126,11 +126,17 @@ create:
   lea   rsi, [value]
   call  create_key
 
+  cmp   rax, 0
+  jl    error
+
   jmp   next_query
 
 read:
   lea   rdi, [key]
   call  read_key
+
+  cmp   rax, 0
+  jl    error
 
   jmp   next_query
   
@@ -139,11 +145,17 @@ update:
   lea   rsi, [value]
   call  update_key
 
+  cmp   rax, 0
+  jl    error
+
   jmp   next_query
 
 delete:
   lea   rdi, [key]
   call  delete_key
+
+  cmp   rax, 0
+  jl    error
 
   jmp   next_query
 
@@ -186,3 +198,7 @@ section .data
   ERR_INVALID_NOT_ENOUGH  db "[ERROR] invalid query, not enough arguments", LINE_FEED, NULL_CHAR
 
   ERR_PARSE db "[ERROR] invalid query, failed to parse request", LINE_FEED, NULL_CHAR
+
+  ERR_DATA_FULL db "[ERROR] data is full", LINE_FEED, NULL_CHAR
+
+  ERR_KEY_NOT_EXIST db "[ERROR] key does not exist", LINE_FEED, NULL_CHAR

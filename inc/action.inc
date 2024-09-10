@@ -6,8 +6,8 @@ create_key:
   ; rsi -> value
   sub   rsp, 0x10
 
-  push  rsi
-  push  rdi
+  mov   [rsp], rdi
+  mov   [rsp+0x8], rsi
 
   ; go to next record
   mov   rax, DATA_STRUCT_LEN
@@ -23,12 +23,14 @@ create_key:
   ; load key
   lea   rdi, [data]
   add   rdi, rax
-  pop   rsi
+  lea   rax, [rsp]
+  mov   rsi, [rax]
   mov   rcx, KEY_MAX_LEN
   rep   movsb
 
   ; load value
-  pop   rsi
+  lea   rax, [rsp+0x8]
+  mov   rsi, [rax]
   mov   rcx, VALUE_MAX_LEN
   rep   movsb
 
@@ -39,29 +41,27 @@ create_key:
 no_space:
   dec   qword [record_count]
 
+  lea   rdi, [ERR_DATA_FULL]
+
   ; clean stack
-  pop   rsi
-  pop   rdi
   add   rsp, 0x10
 
   mov   rax, -1
   ret
 
-
 read_key:
   ; rdi -> key
-  sub   rsp, 0x10
+  sub   rsp, 0x10 ; key and counter
 
-  mov   r9, 0 ; counter
-
-  push  rdi
+  mov   [rsp], rdi
+  mov   qword [rsp+0x8], 0 ; counter
 
   ; check if key exists
   lea   rdi, [data]
 
 next_key:
-  pop   rsi
-  push  rsi
+  lea   rax, [rsp]
+  mov   rsi, [rax]
   mov   rcx, KEY_MAX_LEN
   rep   cmpsb
 
@@ -73,16 +73,17 @@ next_key:
   mov   rdi, 1
   syscall
 
-  pop   rsi
+  mov   rax, 0
 
   add   rsp, 0x10
   ret
 
 key_not_equal:
-  inc   r9
+  inc   qword [rsp+0x8]
   
-  cmp   r9, qword [record_count]
-  jg   key_does_not_exist
+  mov   rax, qword [rsp+0x8]
+  cmp   rax, qword [record_count]
+  jg    key_does_not_exist
 
   ; move to the next key
   add   rdi, rcx
@@ -92,44 +93,47 @@ key_not_equal:
   jmp   next_key
 
 key_does_not_exist:
+  lea   rdi, [ERR_KEY_NOT_EXIST]
+
   mov   rax, -1
-  pop   rsi
   add   rsp, 0x10
   ret
 
 update_key:
   ; rdi -> key
   ; rsi -> value
-  sub   rsp, 0x18
+  sub   rsp, 0x18 ; key, value and counter
 
-  mov   r9, 0 ; counter
-
-  push  rsi
-  push  rdi
+  mov   [rsp], rdi
+  mov   [rsp+0x8], rsi
+  mov   qword [rsp+0x10], 0
 
   ; check if key exists
   lea   rdi, [data]
 
-  update_next_key:
-  pop   rsi
-  push  rsi
+update_next_key:
+  lea   rax, [rsp]
+  mov   rsi, [rax]
   mov   rcx, KEY_MAX_LEN
   rep   cmpsb
 
   jne   update_key_not_equal
 
-  pop   rsi ; pop the key
-  pop   rsi ; pop the value
+  lea   rax, [rsp+0x8]
+  mov   rsi, [rax]
   mov   rcx, VALUE_MAX_LEN
   rep   movsb
+
+  mov   rax, 0
 
   add   rsp, 0x18
   ret
 
 update_key_not_equal:
-  inc   r9
+  inc   qword [rsp+0x10]
 
-  cmp   r9, qword [record_count]
+  mov   rax, qword [rsp+0x10]
+  cmp   rax, qword [record_count]
   jg    update_key_does_not_exist
 
   ; move to the next key
@@ -139,26 +143,26 @@ update_key_not_equal:
 
   jmp   update_next_key
 
-  update_key_does_not_exist:
+update_key_does_not_exist:
+  lea   rdi, [ERR_KEY_NOT_EXIST]
+
   mov   rax, -1
-  pop   rsi
   add   rsp, 0x18
   ret
 
 delete_key:
   ; rdi -> key
-  sub   rsp, 0x10
+  sub   rsp, 0x10 ; key, counter
 
-  mov   r9, 0 ; counter
-
-  push  rdi
+  mov   [rsp], rdi
+  mov   qword [rsp+0x8], 0
 
   ; check if key exists
   lea   rdi, [data]
 
 delete_next_key:
-  pop   rsi
-  push  rsi
+  lea   rax, [rsp]
+  mov   rsi, [rax]
   mov   rcx, KEY_MAX_LEN
   rep   cmpsb
 
@@ -173,18 +177,19 @@ delete_next_key:
   mov   rcx, VALUE_MAX_LEN
   rep   stosb
 
-  pop   rsi
-
   dec   qword [record_count]
+
+  mov   rax, 0
 
   add   rsp, 0x10
   ret
 
 delete_key_not_equal:
-  inc   r9
+  inc   qword [rsp+0x8]
 
-  cmp   r9, qword [record_count]
-  jg   delete_key_does_not_exist
+  mov   rax, qword [rsp+0x8]
+  cmp   rax, qword [record_count]
+  jg    delete_key_does_not_exist
 
   ; move to the next key
   add   rdi, rcx
@@ -194,8 +199,9 @@ delete_key_not_equal:
   jmp   delete_next_key
 
 delete_key_does_not_exist:
+  lea   rdi, [ERR_KEY_NOT_EXIST]
+
   mov   rax, -1
-  pop   rsi
   add   rsp, 0x10
   ret
 
