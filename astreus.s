@@ -56,10 +56,68 @@ next_query:
   cmp   rax, 0
   jl    error
 
+  lea   rdi, [action]
+  lea   rsi, [CREATE]
+  call  str_equal
+
+  cmp   rax, 1
+  je    create
+
+  lea   rdi, [action]
+  lea   rsi, [READ]
+  call  str_equal
+
+  cmp   rax, 1
+  je    read
+
+  lea   rdi, [action]
+  lea   rsi, [UPDATE]
+  call  str_equal
+
+  cmp   rax, 1
+  je    update
+
+  lea   rdi, [action]
+  lea   rsi, [DELETE]
+  call  str_equal
+
+  cmp   rax, 1
+  je    delete
+
+  jmp   next_query
+
+create:
   mov   rax, 1
   mov   rdi, 1
-  lea   rsi, [buffer]
-  mov   rdx, qword [buffer_len]
+  lea   rsi, [CREATE]
+  mov   rdx, 6
+  syscall
+
+  jmp   next_query
+
+read:
+  mov   rax, 1
+  mov   rdi, 1
+  lea   rsi, [READ]
+  mov   rdx, 4
+  syscall
+
+  jmp   next_query
+  
+update:
+  mov   rax, 1
+  mov   rdi, 1
+  lea   rsi, [UPDATE]
+  mov   rdx, 7
+  syscall
+
+  jmp   next_query
+
+delete:
+  mov   rax, 1
+  mov   rdi, 1
+  lea   rsi, [DELETE]
+  mov   rdx, 7
   syscall
 
   jmp   next_query

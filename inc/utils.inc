@@ -69,4 +69,91 @@ return_find_next_char:
   add   rsp, 0x8
   ret
 
+get_length:
+  ; rdi -> string
+  ; return value: rax -> length
+  mov   rcx, 0
+
+get_length_loop:
+  mov   al, byte [rdi]
+  cmp   al, 0
+  je    return_length
+
+  inc   rdi
+  inc   rcx
+  jmp   get_length_loop
+
+return_length:
+  mov   rax, rcx
+  ret
+
+str_equal:
+  ; rdi -> string 1
+  ; rsi -> string 2
+  sub   rsp, 0x8
+
+  push  rdi
+  call  get_length
+
+  mov   rcx, rax
+  pop   rdi
+
+  rep   cmpsb
+  jne   str_not_equal
+
+  mov   rax, 1
+  add   rsp, 0x8
+  ret
+
+str_not_equal:
+  mov   rax, -1
+  add   rsp, 0x8
+  ret
+
+contains:
+  ; rdi -> string
+  ; rsi -> substring
+  sub   rsp, 0x18
+  mov   qword [rsp+0x8], 0 ; string index
+  mov   qword [rsp+0x10], 0 ; sub pos
+
+  push  rdi
+  lea   rdi, [rsi]
+  call  get_length
+  mov   rcx, rax
+
+  pop   rdi
+
+cmp_loop:
+  rep   cmpsb
+
+  jne   not_equal
+
+  jmp   found
+
+not_equal:
+  sub   rsi, rax
+  add   rsi, rcx
+
+  add   qword [rsp+0x8], rax
+  sub   qword [rsp+0x8], rcx
+
+  mov   rbx, qword [rsp+0x8]
+  mov   rdx, qword [rsp+0x10]
+  cmp   rbx, rdx
+  jge   not_found
+
+  jmp   cmp_loop
+
+not_found:
+  mov   rax, -1
+  add   rsp, 0x18
+  ret
+
+found:
+  mov   rax, qword [rsp+0x10]
+  add   rsp, 0x18
+  ret
+
 %endif
+
