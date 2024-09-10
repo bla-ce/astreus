@@ -14,7 +14,7 @@ VALUE_MAX_LEN   equ 32
 BUFFER_MAX_LEN  equ 8192
 
 ; data
-DATA_MAX_COUNT  equ 2
+DATA_MAX_COUNT  equ 10
 DATA_STRUCT_LEN equ KEY_MAX_LEN + VALUE_MAX_LEN
 
 ; ascii
@@ -22,6 +22,7 @@ NULL_CHAR equ 0
 LINE_FEED equ 10
 SPACE     equ 32
 COLON     equ 58
+
 
 ; valid action
 CREATE db "CREATE", NULL_CHAR
@@ -32,6 +33,13 @@ DELETE db "DELETE", NULL_CHAR
 section .text
 _start:
 next_query:
+  ; new line
+  mov   rax, 1
+  mov   rdi, 1
+  lea   rsi, [STR_NEW_LINE]
+  mov   rdx, 1
+  syscall
+
   ; clear strings
   lea   rdi, [action]
   mov   al, 0
@@ -163,5 +171,6 @@ section .bss
 
   record_count resq 1
 
-section .data
+section .data 
+  STR_NEW_LINE db LINE_FEED
 
