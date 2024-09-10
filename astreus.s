@@ -22,7 +22,6 @@ LINE_FEED equ 10
 SPACE     equ 32
 COLON     equ 58
 
-
 ; valid action
 CREATE db "CREATE", NULL_CHAR
 READ   db "READ", NULL_CHAR
@@ -32,13 +31,6 @@ DELETE db "DELETE", NULL_CHAR
 section .text
 _start:
 next_query:
-  ; new line
-  mov   rax, 1
-  mov   rdi, 1
-  lea   rsi, [STR_NEW_LINE]
-  mov   rdx, 1
-  syscall
-
   ; clear strings
   lea   rdi, [action]
   mov   al, 0
@@ -67,6 +59,8 @@ next_query:
   mov   rdx, BUFFER_MAX_LEN
   syscall
 
+  lea   rdi, [ERR_READ]
+
   cmp   rax, 0
   jl    error
 
@@ -77,16 +71,22 @@ next_query:
   mov   rsi, qword [buffer_len]
   call  find_number_of_word
 
+  lea   rdi, [ERR_INVALID_TOO_MUCH]
+
   cmp   rax, 3
-  jg    next_query
+  jg    error
+
+  lea   rdi, [ERR_INVALID_NOT_ENOUGH]
 
   cmp   rax, 1
-  jle   next_query 
+  jle   error
 
   ; parse
   lea   rdi, [buffer]
   mov   rsi, rax
   call  parse_query
+
+  lea   rdi, [ERR_PARSE]
 
   cmp   rax, 0
   jl    error
@@ -153,9 +153,16 @@ delete:
   syscall
 
 error:
-  mov   rax, 60
-  mov   rdi, -1
+  ; rdi -> error message
+  lea   rsi, [rdi]
+  call  get_length
+  mov   rdx, rax
+
+  mov   rax, 1
+  mov   rdi, 1
   syscall
+
+  jmp   next_query
 
 section .bss
   buffer resb BUFFER_MAX_LEN
@@ -173,3 +180,9 @@ section .bss
 section .data 
   STR_NEW_LINE db LINE_FEED
 
+  ERR_READ db "[ERROR] failed to read user input", LINE_FEED, NULL_CHAR
+
+  ERR_INVALID_TOO_MUCH    db "[ERROR] invalid query, too much arguments", LINE_FEED, NULL_CHAR
+  ERR_INVALID_NOT_ENOUGH  db "[ERROR] invalid query, not enough arguments", LINE_FEED, NULL_CHAR
+
+  ERR_PARSE db "[ERROR] invalid query, failed to parse request", LINE_FEED, NULL_CHAR

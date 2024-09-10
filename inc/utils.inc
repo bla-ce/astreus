@@ -110,50 +110,5 @@ str_not_equal:
   add   rsp, 0x8
   ret
 
-contains:
-  ; rdi -> string
-  ; rsi -> substring
-  sub   rsp, 0x18
-  mov   qword [rsp+0x8], 0 ; string index
-  mov   qword [rsp+0x10], 0 ; sub pos
-
-  push  rdi
-  lea   rdi, [rsi]
-  call  get_length
-  mov   rcx, rax
-
-  pop   rdi
-
-cmp_loop:
-  rep   cmpsb
-
-  jne   not_equal
-
-  jmp   found
-
-not_equal:
-  sub   rsi, rax
-  add   rsi, rcx
-
-  add   qword [rsp+0x8], rax
-  sub   qword [rsp+0x8], rcx
-
-  mov   rbx, qword [rsp+0x8]
-  mov   rdx, qword [rsp+0x10]
-  cmp   rbx, rdx
-  jge   not_found
-
-  jmp   cmp_loop
-
-not_found:
-  mov   rax, -1
-  add   rsp, 0x18
-  ret
-
-found:
-  mov   rax, qword [rsp+0x10]
-  add   rsp, 0x18
-  ret
-
 %endif
 
