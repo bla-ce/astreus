@@ -47,6 +47,55 @@ no_space:
   mov   rax, -1
   ret
 
+update_key:
+  ; rdi -> key
+  ; rsi -> value
+  sub   rsp, 0x18
+
+  mov   qword [rsp+0x10], 0 ; count
+
+  push  rsi
+  push  rdi
+
+  ; check if key exists
+  lea   rdi, [data]
+
+update_next_key:
+  pop   rsi
+  push  rsi
+  mov   rcx, KEY_MAX_LEN
+  rep   cmpsb
+
+  jne   update_key_not_equal
+
+  pop   rsi ; pop the key
+  pop   rsi ; pop the value
+  mov   rcx, VALUE_MAX_LEN
+  rep   movsb
+
+  add   rsp, 0x18
+  ret
+
+update_key_not_equal:
+  inc   qword [rsp+0x10]
+  
+  mov   rbx, qword [record_count]
+  cmp   qword [rsp+0x10], rbx
+  je    update_key_does_not_exist
+
+  ; move to the next key
+  add   rdi, rcx
+  sub   rdi, KEY_MAX_LEN
+  add   rdi, VALUE_MAX_LEN
+
+  jmp   update_next_key
+
+update_key_does_not_exist:
+  mov   rax, -1
+  pop   rsi
+  add   rsp, 0x18
+  ret
+
 read_key:
   ; rdi -> key
   sub   rsp, 0x10
@@ -95,9 +144,6 @@ key_does_not_exist:
   mov   rax, -1
   pop   rsi
   add   rsp, 0x10
-  ret
-
-update_key:
   ret
 
 delete_key:
