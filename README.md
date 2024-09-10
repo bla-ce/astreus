@@ -1,4 +1,4 @@
-# Minimal Database Engine in Netwide Assembly (NASM)
+# 3hrs challenge | Minimal Database Engine in Netwide Assembly (NASM)
 
 ## Project Overview
 
