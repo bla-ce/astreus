@@ -38,13 +38,63 @@ create_key:
 
 no_space:
   dec   qword [record_count]
+
+  ; clean stack
   pop   rsi
   pop   rdi
   add   rsp, 0x10
+
   mov   rax, -1
   ret
 
 read_key:
+  ; rdi -> key
+  sub   rsp, 0x10
+
+  mov   qword [rsp+0x8], 0
+
+  push  rdi
+
+  ; check if key exists
+  lea   rdi, [data]
+
+next_key:
+  pop   rsi
+  push  rsi
+  mov   rcx, KEY_MAX_LEN
+  rep   cmpsb
+
+  jne   key_not_equal
+
+  mov   rax, 1
+  lea   rsi, [rdi]
+  mov   rdx, VALUE_MAX_LEN
+  mov   rdi, 1
+  syscall
+
+  pop   rsi
+
+  add   rsp, 0x10
+  ret
+
+key_not_equal:
+  inc   qword [rsp+0x8]
+  
+  mov   rbx, qword [record_count]
+  cmp   qword [rsp+0x8], rbx
+  je    key_does_not_exist
+
+  ; move to the next key
+  add   rdi, rcx
+  sub   rdi, KEY_MAX_LEN
+  add   rdi, VALUE_MAX_LEN
+
+  jmp   next_key
+
+key_does_not_exist:
+  mov   rax, -1
+  pop   rsi
+  add   rsp, 0x10
   ret
 
 update_key:
