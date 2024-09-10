@@ -1,6 +1,5 @@
 ; TODO: 'DELETE ' is valid
-; TODO: CLEAR query
-; TODO: Fix READ unknown key
+; TODO: Fix READ/UPDATE/DELETE unknown key
 
 global _start
 
