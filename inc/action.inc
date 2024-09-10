@@ -52,7 +52,7 @@ read_key:
   ; rdi -> key
   sub   rsp, 0x10
 
-  mov   qword [rsp+0x8], 0
+  mov   r9, 0 ; counter
 
   push  rdi
 
@@ -79,11 +79,10 @@ next_key:
   ret
 
 key_not_equal:
-  inc   qword [rsp+0x8]
+  inc   r9
   
-  mov   rbx, qword [record_count]
-  cmp   qword [rsp+0x8], rbx
-  je    key_does_not_exist
+  cmp   r9, qword [record_count]
+  jge   key_does_not_exist
 
   ; move to the next key
   add   rdi, rcx
@@ -128,11 +127,10 @@ update_key:
   ret
 
   update_key_not_equal:
-  inc   qword [rsp+0x10]
+  inc   r9
 
-  mov   rbx, qword [record_count]
-  cmp   qword [rsp+0x10], rbx
-  je    update_key_does_not_exist
+  cmp   r9, qword [record_count]
+  jge   update_key_does_not_exist
 
   ; move to the next key
   add   rdi, rcx
@@ -183,11 +181,10 @@ delete_next_key:
   ret
 
 delete_key_not_equal:
-  inc   qword [rsp+0x8]
-  
-  mov   rbx, qword [record_count]
-  cmp   qword [rsp+0x8], rbx
-  je    delete_key_does_not_exist
+  inc   r9
+
+  cmp   r9, qword [record_count]
+  jge   update_key_does_not_exist
 
   ; move to the next key
   add   rdi, rcx
