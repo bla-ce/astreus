@@ -11,6 +11,12 @@ The goal is to build a minimal database engine in NASM (Netwide Assembly) within
 - **Delete**:   Remove a record by its key.
 - **Search**:   Efficiently retrieve records using a simple search algorithm.
 
+### Query Examples
+- CREATE key value
+- READ key
+- UPDATE key new_value
+- DELETE key
+
 ### Constraints
 - The database will operate entirely in memory.
 - Use a simple key-value data structure to store records.
