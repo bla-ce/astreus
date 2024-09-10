@@ -1,26 +1,34 @@
 ; TODO: 'DELETE ' is valid
+; TODO: CLEAR query
 
 global _start
 
 %include "utils.inc"
 %include "parse.inc"
+%include "action.inc"
 
 ; constants
-BUFFER_MAX_LEN equ 8192
-KEY_MAX_LEN equ 32
-VALUE_MAX_LEN equ 32
-ACTION_MAX_LEN equ 8
+ACTION_MAX_LEN  equ 8
+KEY_MAX_LEN     equ 32
+VALUE_MAX_LEN   equ 32
+BUFFER_MAX_LEN  equ 8192
+
+; data
+DATA_MAX_COUNT  equ 32
+DATA_STRUCT_LEN equ KEY_MAX_LEN + ACTION_MAX_LEN
 
 ; ascii
 NULL_CHAR equ 0
 LINE_FEED equ 10
 SPACE     equ 32
+COLON     equ 58
 
 ; valid action
 CREATE db "CREATE", NULL_CHAR
 READ   db "READ", NULL_CHAR
 UPDATE db "UPDATE", NULL_CHAR
 DELETE db "DELETE", NULL_CHAR
+
 
 section .text
 _start:
@@ -87,38 +95,28 @@ next_query:
   jmp   next_query
 
 create:
-  mov   rax, 1
-  mov   rdi, 1
-  lea   rsi, [CREATE]
-  mov   rdx, 6
-  syscall
+  lea   rdi, [key]
+  lea   rsi, [value]
+  call  create_key
 
   jmp   next_query
 
 read:
-  mov   rax, 1
-  mov   rdi, 1
-  lea   rsi, [READ]
-  mov   rdx, 4
-  syscall
+  lea   rdi, [key]
+  call  read_key
 
   jmp   next_query
   
 update:
-  mov   rax, 1
-  mov   rdi, 1
-  lea   rsi, [UPDATE]
-  mov   rdx, 7
-  syscall
+  lea   rdi, [key]
+  lea   rsi, [value]
+  call  update_key
 
   jmp   next_query
 
 delete:
-  mov   rax, 1
-  mov   rdi, 1
-  lea   rsi, [DELETE]
-  mov   rdx, 7
-  syscall
+  lea   rdi, [key]
+  call  delete_key
 
   jmp   next_query
 
@@ -140,6 +138,10 @@ section .bss
   key     resb KEY_MAX_LEN
   value   resb VALUE_MAX_LEN
   action  resb ACTION_MAX_LEN
+
+  data    resb DATA_MAX_COUNT * DATA_STRUCT_LEN
+
+  record_count resq 1
 
 section .data
 
