@@ -14,8 +14,8 @@ VALUE_MAX_LEN   equ 32
 BUFFER_MAX_LEN  equ 8192
 
 ; data
-DATA_MAX_COUNT  equ 32
-DATA_STRUCT_LEN equ KEY_MAX_LEN + ACTION_MAX_LEN
+DATA_MAX_COUNT  equ 2
+DATA_STRUCT_LEN equ KEY_MAX_LEN + VALUE_MAX_LEN
 
 ; ascii
 NULL_CHAR equ 0
@@ -29,10 +29,30 @@ READ   db "READ", NULL_CHAR
 UPDATE db "UPDATE", NULL_CHAR
 DELETE db "DELETE", NULL_CHAR
 
-
 section .text
 _start:
 next_query:
+  ; clear strings
+  lea   rdi, [action]
+  mov   al, 0
+  mov   rcx, ACTION_MAX_LEN
+  rep   stosb
+
+  lea   rdi, [key]
+  mov   al, 0
+  mov   rcx, KEY_MAX_LEN
+  rep   stosb
+
+  lea   rdi, [value]
+  mov   al, 0
+  mov   rcx, VALUE_MAX_LEN
+  rep   stosb
+
+  lea   rdi, [buffer]
+  mov   al, 0
+  mov   rcx, BUFFER_MAX_LEN
+  rep   stosb
+
   ; read user input
   mov   rax, 0
   mov   rdi, 0 ; stdin
