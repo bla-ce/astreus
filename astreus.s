@@ -1,5 +1,4 @@
 ; TODO: 'DELETE ' is valid
-; TODO: Fix READ/UPDATE/DELETE unknown key
 
 global _start
 
