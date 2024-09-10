@@ -82,7 +82,7 @@ key_not_equal:
   inc   r9
   
   cmp   r9, qword [record_count]
-  jge   key_does_not_exist
+  jg   key_does_not_exist
 
   ; move to the next key
   add   rdi, rcx
@@ -102,7 +102,7 @@ update_key:
   ; rsi -> value
   sub   rsp, 0x18
 
-  mov   qword [rsp+0x10], 0 ; count
+  mov   r9, 0 ; counter
 
   push  rsi
   push  rdi
@@ -126,11 +126,11 @@ update_key:
   add   rsp, 0x18
   ret
 
-  update_key_not_equal:
+update_key_not_equal:
   inc   r9
 
   cmp   r9, qword [record_count]
-  jge   update_key_does_not_exist
+  jg    update_key_does_not_exist
 
   ; move to the next key
   add   rdi, rcx
@@ -149,7 +149,7 @@ delete_key:
   ; rdi -> key
   sub   rsp, 0x10
 
-  mov   qword [rsp+0x8], 0
+  mov   r9, 0 ; counter
 
   push  rdi
 
@@ -184,7 +184,7 @@ delete_key_not_equal:
   inc   r9
 
   cmp   r9, qword [record_count]
-  jge   update_key_does_not_exist
+  jg   delete_key_does_not_exist
 
   ; move to the next key
   add   rdi, rcx
