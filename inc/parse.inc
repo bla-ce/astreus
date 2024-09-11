@@ -38,8 +38,10 @@ parse_query:
 
   call  find_next_char
 
+  lea   rdi, [ERR_INVALID_KEY]
+
   cmp   rax, 0
-  jl    error_parse_query
+  jle   error_parse_query
 
   cmp   rax, KEY_MAX_LEN
   jg    error_parse_query
@@ -61,8 +63,10 @@ parse_query:
   mov   rsi, LINE_FEED ; we are expecting new line at the end of the string
   call  find_next_char
 
+  lea   rdi, [ERR_INVALID_VALUE]
+
   cmp   rax, 0
-  jl    error_parse_query
+  jle   error_parse_query
 
   cmp   rax, VALUE_MAX_LEN
   jg    error_parse_query

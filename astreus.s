@@ -1,5 +1,3 @@
-; TODO: 'DELETE ' is valid
-
 global _start
 
 %include "utils.inc"
@@ -205,3 +203,6 @@ section .data
 
   ERR_KEY_NOT_EXIST     db "[ERROR] key does not exist", LINE_FEED, NULL_CHAR
   ERR_ACTION_NOT_EXIST  db "[ERROR] action does not exist", LINE_FEED, NULL_CHAR
+
+  ERR_INVALID_KEY   db "[ERROR] invalid key", LINE_FEED, NULL_CHAR
+  ERR_INVALID_VALUE db "[ERROR] invalid value", LINE_FEED, NULL_CHAR
