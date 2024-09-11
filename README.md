@@ -27,7 +27,13 @@ The goal is to build a minimal database engine in NASM (Netwide Assembly) within
 
 ## Results
 
-I was able to create a minimal database engine in 3 hours, respecting all the functionalities.
+I was able to create a minimal database engine in 3 hours, respecting all the features.
+- **Create**:   Add new records with a key-value pair.
+- **Read**:     Retrieve a record by its key.
+- **Update**:   Modify the value of an existing record.
+- **Delete**:   Remove a record by its key.
+- **Search**:   Efficiently retrieve records using a simple search algorithm.
+
 Here are the features that could have been achieved in more time:
 - writing error messages **(DONE after 3hrs)**
 - clean up the read/update/delete functions as they share similar processes
