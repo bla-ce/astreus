@@ -91,12 +91,13 @@ str_equal:
   ; rdi -> string 1
   ; rsi -> string 2
   sub   rsp, 0x8
-
-  push  rdi
+  
+  mov   [rsp], rdi
   call  get_length
 
   mov   rcx, rax
-  pop   rdi
+  lea   rax, [rsp]
+  mov   rdi, [rax]
 
   rep   cmpsb
   jne   str_not_equal

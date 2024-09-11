@@ -5,10 +5,10 @@ parse_query:
   ; rdi -> query
   ; rsi -> number of words
   sub   rsp, 0x10
+
+  mov   [rsp], rdi
   mov   qword [rsp+0x8], rsi
   
-  push  rdi
-
   ; get action
   mov   rsi, SPACE ; space
   call  find_next_char 
@@ -20,14 +20,15 @@ parse_query:
   jg    error_parse_query
 
   mov   rcx, rax
-  pop   rsi
+  lea   rax, [rsp]
+  mov   rsi, [rax]
   lea   rdi, [action]
   rep   movsb
 
   inc   rsi
+  mov   [rsp], rsi
   
   ; get key
-  push  rsi
   lea   rdi, [rsi]  
   mov   rsi, SPACE
 
@@ -44,7 +45,8 @@ parse_query:
   jg    error_parse_query
 
   mov   rcx, rax
-  pop   rsi
+  lea   rax, [rsp]
+  mov   rsi, [rax]
   lea   rdi, [key]
   rep   movsb
   
@@ -52,9 +54,9 @@ parse_query:
   jl    return_parse_query
 
   inc   rsi
+  mov   [rsp], rsi
 
   ; get value if rsi == 3
-  push  rsi
   lea   rdi, [rsi]  
   mov   rsi, LINE_FEED ; we are expecting new line at the end of the string
   call  find_next_char
@@ -66,7 +68,8 @@ parse_query:
   jg    error_parse_query
 
   mov   rcx, rax
-  pop   rsi
+  lea   rax, [rsp]
+  mov   rsi, [rax]
   lea   rdi, [value]
   rep   movsb
 

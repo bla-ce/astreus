@@ -73,6 +73,12 @@ next_key:
   mov   rdi, 1
   syscall
 
+  mov   rax, 1
+  lea   rsi, [STR_NEW_LINE]
+  mov   rdi, 1
+  mov   rdx, 1
+  syscall
+
   mov   rax, 0
 
   add   rsp, 0x10

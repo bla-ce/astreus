@@ -119,7 +119,9 @@ next_query:
   cmp   rax, 1
   je    delete
 
-  jmp   next_query
+  lea   rdi, [ERR_ACTION_NOT_EXIST]
+
+  jl    error
 
 create:
   lea   rdi, [key]
@@ -201,4 +203,5 @@ section .data
 
   ERR_DATA_FULL db "[ERROR] data is full", LINE_FEED, NULL_CHAR
 
-  ERR_KEY_NOT_EXIST db "[ERROR] key does not exist", LINE_FEED, NULL_CHAR
+  ERR_KEY_NOT_EXIST     db "[ERROR] key does not exist", LINE_FEED, NULL_CHAR
+  ERR_ACTION_NOT_EXIST  db "[ERROR] action does not exist", LINE_FEED, NULL_CHAR
