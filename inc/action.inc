@@ -93,7 +93,6 @@ key_not_equal:
 
   ; move to the next key
   add   rdi, rcx
-  sub   rdi, KEY_MAX_LEN
   add   rdi, VALUE_MAX_LEN
 
   jmp   next_key
@@ -144,7 +143,6 @@ update_key_not_equal:
 
   ; move to the next key
   add   rdi, rcx
-  sub   rdi, KEY_MAX_LEN
   add   rdi, VALUE_MAX_LEN
 
   jmp   update_next_key
@@ -199,7 +197,6 @@ delete_key_not_equal:
 
   ; move to the next key
   add   rdi, rcx
-  sub   rdi, KEY_MAX_LEN
   add   rdi, VALUE_MAX_LEN
 
   jmp   delete_next_key
